@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f6e8c">
+<meta name="theme-color" content="#0b1020">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -35,11 +35,14 @@ button,input,select{font-family:inherit}
 .total input::placeholder{color:inherit;opacity:.45}
 .total input:focus{border-bottom-color:var(--accent-ink)}
 
-.cfg{display:grid;gap:8px;margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.cfg{position:relative;display:grid;gap:8px;margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
 .cfg label span{white-space:nowrap}
 .cfg label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:15px}
 .cfg input{width:64px;text-align:right;background:var(--field);border:1px solid transparent;border-radius:10px;padding:11px 10px;color:var(--ink);font-size:16px;outline:none}
 .cfg input:focus{border-color:var(--accent)}
+.cfg .lk{position:absolute;inset:0;z-index:2;border-radius:inherit;background:transparent;border:0;padding:0;cursor:pointer}
+.cfg .lki{position:absolute;top:6px;right:8px;z-index:3;color:var(--muted);pointer-events:none;display:flex}
+.cfg.locked input{opacity:.6}
 
 .list{background:var(--card);border-radius:18px;padding:6px 14px;border:1px solid var(--line)}
 .head,.w{display:grid;gap:5px;align-items:center;grid-template-columns:28px 66px 1fr 52px 30px}
@@ -66,7 +69,8 @@ button,input,select{font-family:inherit}
 .lhint{color:var(--muted);font-size:13px;margin:8px 4px 2px}
 .add{width:100%;margin:6px 0 8px;padding:11px;border:1.5px dashed var(--line);border-radius:12px;background:transparent;color:var(--accent);font-size:15px;font-weight:600;cursor:pointer}
 
-.sum{margin:14px 2px 0;display:flex;justify-content:space-between;gap:10px;font-size:15px}
+.sum{margin:14px 2px 0;display:flex;flex-direction:column;gap:2px;font-size:15px}
+.sum .pct{white-space:nowrap}.sum #given{color:var(--muted)}
 .fondo{margin:12px 0 0;padding:20px 16px 16px;border-radius:18px;background:var(--fc);color:var(--fc-ink);text-align:center}
 .fondo .fl{display:flex;flex-direction:column;align-items:center;gap:0}
 .fondo .fl span{font-size:24px;font-weight:700;letter-spacing:.2px}
@@ -78,6 +82,7 @@ button,input,select{font-family:inherit}
 .btn:disabled{opacity:.45;cursor:default}
 .fondo .btn:disabled{background:transparent;color:var(--fc-ink);border:1.5px solid rgba(10,46,71,.55);opacity:.8}
 #rec{background:var(--pg);border-color:var(--pg);color:#fff}
+.fondo .btn:not(:disabled){background:var(--pg);border-color:var(--pg);color:#fff}
 .note{margin:6px 2px 0;font-size:13px;color:var(--warn);min-height:18px}
 
 .rec{display:flex;gap:10px;margin-top:14px}
@@ -118,6 +123,21 @@ details.h summary::-webkit-details-marker,details.t summary::-webkit-details-mar
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:20}
 .toast.show{opacity:1;transform:translateX(-50%)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== Design: pillole + vetro ===== */
+:root{color-scheme:dark;--bg:#0b1020;--card:#141a30;--ink:#eaf0ff;--muted:#8d9ac0;--line:#26305a;--accent:#7c5cff;--accent-ink:#fff;--ok:#4ade80;--warn:#f0a06a;--field:#0e1428;--g1:#4ade80;--g2:#fbbf24;--g3:#60a5fa;--pg:#16a34a}
+body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!important;background-attachment:fixed!important;font-family:"Trebuchet MS",system-ui,sans-serif}
+.total{background:linear-gradient(135deg,#7c5cff,#e0529c);color:#fff;border-radius:24px;box-shadow:0 10px 30px rgba(124,92,255,.35)}
+.list,.cfg,.fondo,#hist>*{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.14)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:22px}
+.fondo{background:rgba(120,190,255,.16)!important;border-color:rgba(150,210,255,.4)!important;color:#d9efff!important}
+.fondo *{color:inherit!important}
+.btn{border-radius:999px!important;padding:14px 18px;font-weight:700;background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.fondo .btn:disabled{background:transparent!important;border:1.5px solid rgba(217,239,255,.45)!important;opacity:.8}
+.fondo .btn:not(:disabled),#rec{background:rgba(34,197,94,.4)!important;border-color:rgba(34,197,94,.8)!important;box-shadow:0 6px 18px rgba(34,197,94,.3)}
+.w select,.w .nm,.cfg input,#date{background:rgba(255,255,255,.08)!important;border-radius:999px!important}
+.w select{text-align:center}.w .nm{padding-left:14px}
+.actions.icons .ib{flex:1;height:52px;padding:0;display:grid;place-items:center}
+.hdel{border-radius:999px}
 </style>
 </head>
 <body>
@@ -128,7 +148,9 @@ details.h summary::-webkit-details-marker,details.t summary::-webkit-details-mar
       <div class="row"><span class="eur">€</span><input id="tot" inputmode="decimal" autocomplete="off" placeholder="0"></div>
     </div>
 
-    <div class="cfg" id="cfg">
+    <div class="cfg locked" id="cfg">
+      <button class="lk" id="cfgLock" aria-label="Sbloccato con 2 tocchi" type="button"></button>
+      <span class="lki" id="cfgIcon"></span>
       <label><b style="font-weight:400">Medio prende meno dell'Alto di</b> <span><input id="d1" inputmode="decimal"> €</span></label>
       <label><b style="font-weight:400">Basso prende meno dell'Alto di</b> <span><input id="d2" inputmode="decimal"> €</span></label>
     </div>
@@ -156,13 +178,11 @@ details.h summary::-webkit-details-marker,details.t summary::-webkit-details-mar
       <input type="date" id="date" aria-label="Data pagamento">
       <button class="btn main" id="rec">Registra pagamento</button>
     </div>
-    <div class="actions">
-      <button class="btn" id="clear">Azzera importo</button>
-      <button class="btn" id="copy">Copia riepilogo</button>
-    </div>
-    <div class="actions">
-      <button class="btn" id="bkp">Salva backup</button>
-      <button class="btn" id="rst">Ripristina</button>
+    <div class="actions icons">
+      <button class="btn ib" id="clear" title="Azzera importo" aria-label="Azzera importo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+      <button class="btn ib" id="copy" title="Copia riepilogo" aria-label="Copia riepilogo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button>
+      <button class="btn ib" id="bkp" title="Salva backup" aria-label="Salva backup"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg></button>
+      <button class="btn ib" id="rst" title="Ripristina" aria-label="Ripristina"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 20h14"/></svg></button>
       <input type="file" id="rstFile" accept=".json,application/json" hidden>
     </div>
 
@@ -580,6 +600,22 @@ details.h summary::-webkit-details-marker,details.t summary::-webkit-details-mar
     };
     r.readAsText(f);
   };
+
+
+  /* ---- blocco differenze Alto/Medio/Basso: 2 tocchi per sbloccare ---- */
+  (function(){
+    var cfg=$('cfg'),lk=$('cfgLock'),ic=$('cfgIcon'),taps=[];
+    var LOCK='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+    var OPEN='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
+    function setLocked(v){cfg.classList.toggle('locked',v);lk.hidden=!v;ic.innerHTML=v?LOCK:OPEN;if(v)taps=[];}
+    lk.onclick=function(){
+      var t=Date.now();taps=taps.filter(function(x){return t-x<900;});taps.push(t);
+      if(taps.length>=2){setLocked(false);$('d1').focus();toast('Sbloccato');}
+      else if(taps.length===1)toast('Tocca 2 volte per modificare');
+    };
+    cfg.addEventListener('focusout',function(){setTimeout(function(){var a=document.activeElement;if(a!==$('d1')&&a!==$('d2'))setLocked(true);},50);});
+    setLocked(true);
+  })();
 
   if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){navigator.serviceWorker.register('sw.js').catch(function(){});}
 
