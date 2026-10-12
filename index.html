@@ -138,6 +138,16 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
 .w select{text-align:center}.w .nm{padding-left:14px}
 .actions.icons .ib{flex:1;height:52px;padding:0;display:grid;place-items:center}
 .hdel{border-radius:999px}
+.box .rsd{font-size:14px;color:var(--muted);margin:0 0 14px}
+#rsModal .btn{display:block;width:100%;margin-top:10px}
+#rsModal .rsbig{padding:18px 16px!important;font-size:18px!important;background:linear-gradient(135deg,#7c5cff,#e0529c)!important;border:0!important;color:#fff!important;box-shadow:0 8px 22px rgba(124,92,255,.35)}
+#rsModal .rssmall{padding:8px 14px!important;font-size:14px!important;font-weight:600;color:#fca5a5!important;border-color:rgba(248,113,113,.5)!important}
+#rsModal .rsno{padding:10px!important;font-size:15px!important;background:transparent!important;border-color:transparent!important;color:var(--muted)!important}
+.sy{display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:-1px;margin-left:6px}
+.lgd .sy{margin:0 4px 0 0}
+.sy.g1{background:var(--g1)}.sy.g2{background:var(--g2)}.sy.g3{background:var(--g3)}
+.lgd{display:flex;gap:14px;padding:6px 2px 10px;font-size:13px;color:var(--muted)}
+.hdel{color:#fca5a5!important;background:rgba(220,38,38,.18)!important;border:1px solid rgba(248,113,113,.6)!important;font-weight:700}
 #myes.danger{background:#dc2626!important;border-color:#ef4444!important;color:#fff!important;box-shadow:0 6px 18px rgba(220,38,38,.35)}
 </style>
 </head>
@@ -180,7 +190,7 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
       <button class="btn main" id="rec">Registra pagamento</button>
     </div>
     <div class="actions icons">
-      <button class="btn ib" id="clear" title="Azzera importo" aria-label="Azzera importo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+      <button class="btn ib" id="clear" title="Resetta" aria-label="Resetta"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
       <button class="btn ib" id="copy" title="Copia riepilogo" aria-label="Copia riepilogo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button>
       <button class="btn ib" id="bkp" title="Salva backup" aria-label="Salva backup"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg></button>
       <button class="btn ib" id="rst" title="Ripristina" aria-label="Ripristina"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 20h14"/></svg></button>
@@ -204,6 +214,13 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
   <select class="af g3" id="aG"><option value="1">Alto</option><option value="2">Medio</option><option value="3" selected>Basso</option></select>
   <div class="ahint" id="aHint"></div>
   <div class="acts"><button class="btn" id="aNo">Annulla</button><button class="btn main" id="aYes">Aggiungi</button></div>
+</div></div>
+<div class="modal" id="rsModal"><div class="box">
+  <p class="mt">Cosa vuoi resettare?</p>
+  <p class="rsd">Lo storico dei pagamenti non viene mai toccato.</p>
+  <button class="btn main rsbig" id="rsAmt">Solo importo mance</button>
+  <button class="btn rssmall" id="rsAll">Tutto (importo + nomi)</button>
+  <button class="btn rsno" id="rsNo">Annulla</button>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -466,9 +483,22 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
   $('aNo').onclick=closeAdd;
   $('addModal').onclick=function(ev){if(ev.target===this)closeAdd();};
   $('add').onclick=openAdd;
+  function resetAmount(){state.total='';tot.value='';save();update();toast('Importo azzerato');}
+  function resetAll(){
+    ask('Attenzione: verranno eliminati tutti i nomi degli operai e l\'importo. Lo storico dei pagamenti resta. Continuare?',function(){
+      ask('Ultima conferma: eliminare TUTTI i nomi degli operai? Non si può annullare.',function(){
+        state.people=[];state.workers=[];state.total='';tot.value='';
+        save();render();update();renderHist();toast('Nomi e importo azzerati');
+      },'Sì, elimina tutto',true);
+    },'Sì, continua',true);
+  }
+  function rsClose(){$('rsModal').classList.remove('show');}
+  $('rsAmt').onclick=function(){rsClose();resetAmount();};
+  $('rsAll').onclick=function(){rsClose();resetAll();};
+  $('rsNo').onclick=rsClose;
+  $('rsModal').onclick=function(ev){if(ev.target===this)rsClose();};
   $('clear').onclick=function(){
-    function go(){state.total='';tot.value='';save();update();tot.focus();}
-    ask('Azzerare l\'importo inserito?',go,'Sì, azzera');
+    ask('Vuoi resettare?',function(){$('rsModal').classList.add('show');},'Sì, resetta',true);
   };
 
   function ask(msg,yes,lbl,danger){
@@ -566,7 +596,13 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
       var a=document.createElement('span');a.textContent=fmtDate(e.d)+(e.fondo?' · Dal Fondo Cassa':'');
       var c=document.createElement('b');c.textContent=eur(e.fondo?e.fondoUsed:e.cents);
       s.appendChild(a);s.appendChild(c);d.appendChild(s);
-      e.items.forEach(function(it){d.appendChild(row(it.n+' ('+(it.t!=null?it.t:pf(it.p)+'%')+')',eur(it.c)));});
+      var lg=document.createElement('div');lg.className='lgd';lg.innerHTML='<span><i class="sy g1"></i> Alto</span><span><i class="sy g2"></i> Medio</span><span><i class="sy g3"></i> Basso</span>';d.appendChild(lg);
+      e.items.forEach(function(it){
+        var q={Alto:'g1',Medio:'g2',Basso:'g3'}[it.t];
+        var r=row(q?it.n:it.n+' ('+(it.t!=null?it.t:pf(it.p)+'%')+')',eur(it.c));
+        if(q){var dot=document.createElement('i');dot.className='sy '+q;dot.title=it.t;dot.setAttribute('aria-label',it.t);r.firstChild.appendChild(dot);}
+        d.appendChild(r);
+      });
       if(e.rest>0){var fcr=row('Fondo Cassa',eur(e.rest));fcr.className='hi fc';d.appendChild(fcr);}
       if(e.ferie&&e.ferie.length){var fr2=row('In ferie',e.ferie.join(', '));fr2.style.color='var(--muted)';d.appendChild(fr2);}
       var x=document.createElement('button');x.className='hdel';x.textContent='Elimina';
