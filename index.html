@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f6e8c">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Mance</title>
+<style>
+:root{
+  --bg:#eef1f4; --card:#ffffff; --ink:#14202b; --muted:#5d6b78; --line:#d5dce3;
+  --accent:#0f6e8c; --accent-ink:#ffffff; --ok:#1d7a4b; --warn:#b4531a; --field:#f5f7f9;
+  --g1:#1d7a4b; --g2:#a8650c; --g3:#5456c4; --fc:#b9e0f7; --fc-ink:#0a2e47; --pg:#14703a;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#10161c; --card:#19222b; --ink:#e8eef3; --muted:#93a1ae; --line:#2b3743;
+    --accent:#4cb3d4; --accent-ink:#06222c; --ok:#5fcf93; --warn:#f0a06a; --field:#111a21;
+    --g1:#5fcf93; --g2:#f0b45f; --g3:#a3a6ff; --fc:#b9e0f7; --fc-ink:#0a2e47; --pg:#17803f;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain;padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:520px;margin:0 auto;padding:14px 14px 40px}
+button,input,select{font-family:inherit}
+
+.total{background:var(--accent);color:var(--accent-ink);border-radius:18px;padding:16px 18px;margin-bottom:12px}
+.total label{display:block;font-size:14px;opacity:.85;margin-bottom:2px}
+.total .row{display:flex;align-items:baseline;gap:8px}
+.total .eur{font-size:34px;font-weight:700}
+.total input{flex:1;min-width:0;width:100%;background:transparent;border:0;border-bottom:2px solid rgba(255,255,255,.4);color:inherit;font-size:44px;font-weight:700;line-height:1.1;padding:2px 0;outline:none}
+.total input::placeholder{color:inherit;opacity:.45}
+.total input:focus{border-bottom-color:var(--accent-ink)}
+
+.cfg{display:grid;gap:8px;margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.cfg label span{white-space:nowrap}
+.cfg label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:15px}
+.cfg input{width:64px;text-align:right;background:var(--field);border:1px solid transparent;border-radius:10px;padding:11px 10px;color:var(--ink);font-size:16px;outline:none}
+.cfg input:focus{border-color:var(--accent)}
+
+.list{background:var(--card);border-radius:18px;padding:6px 14px;border:1px solid var(--line)}
+.head,.w{display:grid;gap:5px;align-items:center;grid-template-columns:28px 66px 1fr 52px 30px}
+.head{padding:10px 0 6px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+.head span:nth-child(4){text-align:right}
+.w{padding:9px 0;border-bottom:1px solid var(--line)}
+.w:last-child{border-bottom:0}
+.w select{width:100%;min-width:0;background:var(--field);border:1px solid transparent;border-radius:10px;padding:12px 0;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;color:var(--ink);font-size:14px;outline:none}
+.w select:focus{border-color:var(--accent)}
+.w select.g1,.w select.g2,.w select.g3{font-weight:700}
+.w select.g1{color:var(--g1);background:color-mix(in srgb,var(--g1) 15%,var(--field))}
+.w select.g2{color:var(--g2);background:color-mix(in srgb,var(--g2) 15%,var(--field))}
+.w select.g3{color:var(--g3);background:color-mix(in srgb,var(--g3) 15%,var(--field))}
+.w select option{color:var(--ink);background:var(--card);font-weight:400}
+.sum .pct b.g1{color:var(--g1)}.sum .pct b.g2{color:var(--g2)}.sum .pct b.g3{color:var(--g3)}
+.w .nm{width:100%;min-width:0;text-align:left;background:var(--field);border:1px solid transparent;border-radius:10px;padding:12px 8px;color:var(--ink);font-size:16px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.w .nm:active,.w .nm:focus{border-color:var(--accent);outline:none}
+.w .amt{text-align:right;font-weight:650;font-size:16px}
+.w .del{width:30px;height:44px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:20px;cursor:pointer}
+.w .del:active{background:var(--field)}
+.w .pres{width:24px;height:24px;margin:0 2px;accent-color:var(--accent);cursor:pointer}
+.w.off select,.w.off .nm{opacity:.45}
+.w.off .amt{color:var(--muted);font-weight:600;font-size:15px}
+.lhint{color:var(--muted);font-size:13px;margin:8px 4px 2px}
+.add{width:100%;margin:6px 0 8px;padding:11px;border:1.5px dashed var(--line);border-radius:12px;background:transparent;color:var(--accent);font-size:15px;font-weight:600;cursor:pointer}
+
+.sum{margin:14px 2px 0;display:flex;justify-content:space-between;gap:10px;font-size:15px}
+.fondo{margin:12px 0 0;padding:20px 16px 16px;border-radius:18px;background:var(--fc);color:var(--fc-ink);text-align:center}
+.fondo .fl{display:flex;flex-direction:column;align-items:center;gap:0}
+.fondo .fl span{font-size:24px;font-weight:700;letter-spacing:.2px}
+.fondo .fl b{font-size:52px;font-weight:800;line-height:1.15;color:var(--fc-ink)}
+.fondo .fs{font-size:16px;margin-top:6px;color:var(--fc-ink);font-weight:500}
+.fondo .fs:empty{display:none}
+.fondo .fs.ok{font-weight:800}
+.fondo .btn{margin-top:14px;width:100%;flex:none;background:var(--fc-ink);border-color:var(--fc-ink);color:var(--fc);font-size:17px;font-weight:700}
+.btn:disabled{opacity:.45;cursor:default}
+.fondo .btn:disabled{background:transparent;color:var(--fc-ink);border:1.5px solid rgba(10,46,71,.55);opacity:.8}
+#rec{background:var(--pg);border-color:var(--pg);color:#fff}
+.note{margin:6px 2px 0;font-size:13px;color:var(--warn);min-height:18px}
+
+.rec{display:flex;gap:10px;margin-top:14px}
+.rec input[type=date]{flex:0 0 auto;width:150px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 10px;color:var(--ink);font-size:15px;min-height:50px}
+.rec .btn{flex:1}
+.actions{display:flex;gap:10px;margin-top:10px}
+.btn{flex:1;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:16px;font-weight:600;cursor:pointer}
+.btn.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:active{transform:scale(.98)}
+
+.ht{font-size:18px;margin:28px 2px 10px}
+details.h,details.t{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;padding:0 14px}
+details.t{border-color:var(--accent)}
+details.h summary,details.t summary{display:flex;justify-content:space-between;gap:10px;padding:13px 0;cursor:pointer;list-style:none}
+details.h summary::-webkit-details-marker,details.t summary::-webkit-details-marker{display:none}
+.hi{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px}
+.hi.fc{background:var(--fc);color:var(--fc-ink);border-top:0;border-radius:10px;padding:10px 12px;margin:8px 0 4px;font-size:16px;font-weight:700}
+.hi .gone{color:var(--muted);font-size:13px}
+.hdel{margin:8px 0 12px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--warn);font-size:14px;cursor:pointer}
+.empty{color:var(--muted);font-size:15px;margin:4px 2px}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.modal.show{display:flex}
+.box{background:var(--card);color:var(--ink);border-radius:18px;padding:20px;max-width:360px;width:100%}
+.box p{margin:0 0 16px;font-size:17px}
+.box .acts{display:flex;gap:10px}
+.box .mt{font-size:20px;font-weight:700;margin:0 0 4px}
+.box label.al{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+.box input.af,.box select.af{width:100%;min-width:0;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:13px 12px;color:var(--ink);font-size:17px;outline:none}
+.box input.af:focus,.box select.af:focus{border-color:var(--accent)}
+.box select.af{font-weight:700}
+.box select.af.g1{color:var(--g1);background:color-mix(in srgb,var(--g1) 15%,var(--field))}
+.box select.af.g2{color:var(--g2);background:color-mix(in srgb,var(--g2) 15%,var(--field))}
+.box select.af.g3{color:var(--g3);background:color-mix(in srgb,var(--g3) 15%,var(--field))}
+.box select.af option{color:var(--ink);background:var(--card);font-weight:400}
+.box select.af:disabled{opacity:.7}
+.ahint{font-size:13px;color:var(--muted);min-height:18px;margin:8px 0 14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="viewMain">
+    <div class="total">
+      <label for="tot">Mance raccolte</label>
+      <div class="row"><span class="eur">€</span><input id="tot" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    </div>
+
+    <div class="cfg" id="cfg">
+      <label><b style="font-weight:400">Medio prende meno dell'Alto di</b> <span><input id="d1" inputmode="decimal"> €</span></label>
+      <label><b style="font-weight:400">Basso prende meno dell'Alto di</b> <span><input id="d2" inputmode="decimal"> €</span></label>
+    </div>
+
+    <div class="list" id="list">
+      <div class="head"><span></span><span>Quota</span><span>Nome</span><span>Importo</span><span></span></div>
+      <div id="rows"></div>
+      <button class="add" id="add">+ Aggiungi operaio</button>
+    </div>
+    <p class="lhint">Togli la spunta a sinistra per mettere un operaio in ferie: non riceve mance, ma resta in lista.</p>
+
+    <div class="sum">
+      <span class="pct" id="pct"></span>
+      <span id="given"></span>
+    </div>
+    <div class="note" id="note"></div>
+    <div class="fondo">
+      <div class="fl"><span>Fondo Cassa</span><b id="fondoTot">0 €</b></div>
+      <div class="fs" id="fondoNew"></div>
+      <div class="fs" id="fondoInfo"></div>
+      <button class="btn main" id="fondoBtn">Distribuisci Fondo Cassa</button>
+    </div>
+
+    <div class="rec">
+      <input type="date" id="date" aria-label="Data pagamento">
+      <button class="btn main" id="rec">Registra pagamento</button>
+    </div>
+    <div class="actions">
+      <button class="btn" id="clear">Azzera importo</button>
+      <button class="btn" id="copy">Copia riepilogo</button>
+    </div>
+    <div class="actions">
+      <button class="btn" id="bkp">Salva backup</button>
+      <button class="btn" id="rst">Ripristina</button>
+      <input type="file" id="rstFile" accept=".json,application/json" hidden>
+    </div>
+
+    <h2 class="ht">Storico pagamenti</h2>
+    <div id="sumtot"></div>
+    <div id="hist"></div>
+  </div>
+
+</div>
+
+<div class="modal" id="modal"><div class="box"><p id="mtxt"></p><div class="acts"><button class="btn" id="mno">Annulla</button><button class="btn main" id="myes">Sì, elimina</button></div></div></div>
+<div class="modal" id="addModal"><div class="box">
+  <p class="mt" id="aTitle">Nuovo operaio</p>
+  <label class="al" for="aName">Nome</label>
+  <input class="af" id="aName" list="aList" autocomplete="off" placeholder="Scrivi il nome">
+  <datalist id="aList"></datalist>
+  <label class="al" for="aG">Quota</label>
+  <select class="af g3" id="aG"><option value="1">Alto</option><option value="2">Medio</option><option value="3" selected>Basso</option></select>
+  <div class="ahint" id="aHint"></div>
+  <div class="acts"><button class="btn" id="aNo">Annulla</button><button class="btn main" id="aYes">Aggiungi</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var KEY='mance_v5';
+  var GL={1:'Alto',2:'Medio',3:'Basso'};
+  function gOf(q){return q<=5?1:(q<=10?2:3);}
+  function lc(s){return String(s||'').trim().toLowerCase();}
+
+  /* ---- caricamento / migrazione ---- */
+  function load(){
+    var st=null;
+    try{
+      var s=localStorage.getItem(KEY);
+      if(s){var o=JSON.parse(s);if(o&&Array.isArray(o.people)&&Array.isArray(o.workers))st=o;}
+    }catch(e){}
+    if(!st){
+      var oo=null;
+      try{
+        var old=localStorage.getItem('mance_v4')||localStorage.getItem('mance_v3')||localStorage.getItem('mance_v2')||localStorage.getItem('mance_v1');
+        if(old)oo=JSON.parse(old);
+      }catch(e){}
+      st={total:'',d1:'10',d2:'15',people:[],workers:[],history:[],nextPid:0};
+      if(oo&&Array.isArray(oo.workers)){
+        st.total=oo.total||'';
+        if(oo.d1!=null)st.d1=oo.d1;
+        if(oo.d2!=null)st.d2=oo.d2;
+        st.history=Array.isArray(oo.history)?oo.history:[];
+        var used={};
+        oo.workers.forEach(function(w,i){
+          var nm=String(w.n||'').trim(),g=(w.g>=1&&w.g<=3)?w.g:gOf(i+1),p=null;
+          if(nm){
+            for(var k=0;k<st.people.length;k++)if(lc(st.people[k].name)===lc(nm)){p=st.people[k];break;}
+            if(!p){p={id:++st.nextPid,name:nm,g:g};st.people.push(p);}
+          }
+          var pid=p&&!used[p.id]?p.id:null;
+          if(pid)used[pid]=true;
+          st.workers.push({pid:pid,g:g});
+        });
+      }else{
+        for(var q=1;q<=13;q++){st.people.push({id:q,name:'Operaio '+q,g:gOf(q)});st.workers.push({pid:q,g:gOf(q)});}
+        st.nextPid=13;
+      }
+    }
+    if(!Array.isArray(st.history))st.history=[];
+    if(st.d1==null)st.d1='10';
+    if(st.d2==null)st.d2='15';
+    var mx=0;
+    st.people.forEach(function(p){if(p.id>mx)mx=p.id;});
+    if(!(st.nextPid>=mx))st.nextPid=mx;
+    st.workers.forEach(function(w,i){if(!(w.g>=1&&w.g<=3))w.g=gOf(i+1);if(w.pid===undefined)w.pid=null;});
+    /* ogni nome ha una quota; se manca, si prende da dove era usato (altrimenti Basso) */
+    st.people.forEach(function(p){
+      if(!(p.g>=1&&p.g<=3)){
+        var wk=null;
+        for(var k=0;k<st.workers.length;k++)if(st.workers[k].pid===p.id){wk=st.workers[k];break;}
+        p.g=wk?wk.g:3;
+      }
+    });
+    /* la quota di una riga segue sempre la quota del nome scelto */
+    st.workers.forEach(function(w){
+      for(var k=0;k<st.people.length;k++)if(st.people[k].id===w.pid){w.g=st.people[k].g;break;}
+    });
+    /* collega i vecchi pagamenti alla persona con lo stesso nome (il nome scritto nel pagamento non cambia) */
+    st.history.forEach(function(e){
+      (e.items||[]).forEach(function(it){
+        if(it.pid==null&&it.n){
+          for(var k=0;k<st.people.length;k++)if(lc(st.people[k].name)===lc(it.n)){it.pid=st.people[k].id;break;}
+        }
+      });
+    });
+    st.workers=st.workers.filter(function(w){return st.people.some(function(p){return p.id===w.pid;});});
+    return st;
+  }
+  var state=load();
+
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  function num(v){var x=parseFloat(String(v).replace(',','.'));return isFinite(x)&&x>0?x:0;}
+  function eur(c){var w=c%100===0;return (c/100).toLocaleString('it-IT',{style:'currency',currency:'EUR',minimumFractionDigits:w?0:2,maximumFractionDigits:w?0:2});}
+  function pf(x){return (Math.round(x*100)/100).toLocaleString('it-IT');}
+  var $=function(id){return document.getElementById(id)};
+  var rows=$('rows'),tot=$('tot');
+
+  function pById(id){
+    if(id==null)return null;
+    for(var i=0;i<state.people.length;i++)if(state.people[i].id===id)return state.people[i];
+    return null;
+  }
+  function pName(id){var p=pById(id);return p?p.name:'';}
+  function isActive(w){return !!pById(w.pid);}
+  function isPaid(w){return isActive(w)&&!w.off;}
+  function paidCount(){return state.workers.filter(isPaid).length;}
+  function feriNames(){return state.workers.filter(function(w){return isActive(w)&&w.off;}).map(function(w){return pName(w.pid);});}
+  function sortedPeople(){
+    return state.people.slice().sort(function(a,b){return a.name.localeCompare(b.name,'it',{sensitivity:'base'});});
+  }
+
+  /* ---- calcolo ---- */
+  function computeDiff(cents){
+    var off=[0,0,Math.round(num(state.d1)*100),Math.round(num(state.d2)*100)];
+    var g=state.workers.map(function(w){return isPaid(w)?w.g:0;});
+    function total(x){return g.reduce(function(a,gi){return gi?a+Math.max(0,x-off[gi]):a;},0);}
+    var x=0;
+    if(g.some(Boolean)){while(total(x+500)<=cents&&x<=cents+off[3]+500)x+=500;}
+    var out=g.map(function(gi){return gi?Math.max(0,x-off[gi]):0;});
+    var rest=cents-out.reduce(function(a,b){return a+b},0);
+    return {cents:cents,out:out,rest:rest};
+  }
+  function compute(){return computeDiff(Math.round(num(state.total)*100));}
+  function label(w){return GL[w.g];}
+
+  /* ---- fondo cassa ---- */
+  function fondoBalance(){
+    var b=state.history.reduce(function(a,e){return a+(e.rest>0?e.rest:0)-(e.fondoUsed>0?e.fondoUsed:0)},0);
+    return Math.max(0,b);
+  }
+  /* minimo per dare qualcosa a tutte le quote presenti */
+  function fondoNeed(){
+    var ws=state.workers.filter(isPaid);
+    if(!ws.length)return 0;
+    var off=[0,0,Math.round(num(state.d1)*100),Math.round(num(state.d2)*100)];
+    var mo=0;ws.forEach(function(w){mo=Math.max(mo,off[w.g])});
+    var x=(Math.floor(mo/500)+1)*500;
+    return ws.reduce(function(a,w){return a+Math.max(0,x-off[w.g])},0);
+  }
+  function updateFondo(){
+    var bal=fondoBalance(),need=fondoNeed(),r=compute(),n=paidCount();
+    $('fondoTot').textContent=eur(bal);
+    $('fondoNew').textContent=(r.cents>0&&r.rest>0)?('+ '+eur(r.rest)+' da questo pagamento (non ancora registrato)'):'';
+    var info=$('fondoInfo'),btn=$('fondoBtn');
+    var can=n>0&&bal>=need;
+    if(!n){info.textContent='';info.className='fs';}
+    else if(can){info.textContent='Puoi distribuirlo: ogni quota riceve qualcosa.';info.className='fs ok';}
+    else{info.textContent='Mancano '+eur(need-bal)+' per distribuirlo a tutte le quote.';info.className='fs';}
+    btn.disabled=!can;
+  }
+
+  /* ---- pagina Mance ---- */
+  function update(){
+    var r=compute();
+    var els=rows.querySelectorAll('.amt');
+    state.workers.forEach(function(w,i){if(els[i])els[i].textContent=!isActive(w)?'—':(w.off?'Ferie':eur(r.out[i]));});
+    var given=r.out.reduce(function(a,b){return a+b},0);
+    $('given').textContent='Distribuito: '+eur(given);
+    updateFondo();
+    var pe=$('pct');pe.innerHTML='';pe.className='pct';
+    var first=true;
+    [1,2,3].forEach(function(g){
+      for(var i=0;i<state.workers.length;i++)if(isPaid(state.workers[i])&&state.workers[i].g===g){
+        if(!first)pe.appendChild(document.createTextNode(' · '));first=false;
+        var lb=document.createElement('b');lb.className='g'+g;lb.textContent=GL[g];
+        pe.appendChild(lb);pe.appendChild(document.createTextNode(' '+eur(r.out[i])));
+        break;
+      }
+    });
+    $('note').textContent=!state.workers.length?'Premi "+ Aggiungi operaio" per iniziare.':(paidCount()?'':'Tutti gli operai sono in ferie.');
+  }
+
+  function render(){
+    rows.innerHTML='';
+    state.workers.forEach(function(w,i){
+      var p=pById(w.pid);
+      var d=document.createElement('div');d.className='w'+(w.off?' off':'');
+      var cb=document.createElement('input');cb.type='checkbox';cb.className='pres';cb.checked=!w.off;
+      cb.setAttribute('aria-label',(p?p.name+': ':'')+'presente (togli la spunta per le ferie)');
+      cb.onchange=function(){w.off=!cb.checked;save();render();};
+      var c2=document.createElement('select');c2.setAttribute('aria-label','Quota');c2.className='g'+w.g;
+      [1,2,3].forEach(function(g){var op=document.createElement('option');op.value=g;op.textContent=GL[g];if(w.g===g)op.selected=true;c2.appendChild(op);});
+      c2.onchange=function(){
+        w.g=parseInt(c2.value,10);
+        if(p)p.g=w.g;
+        save();render();
+      };
+      var n=document.createElement('button');n.className='nm';n.type='button';
+      n.textContent=p?p.name:'—';n.setAttribute('aria-label','Modifica '+(p?p.name:'operaio'));
+      n.onclick=function(){openEdit(i);};
+      var a=document.createElement('div');a.className='amt';
+      var x=document.createElement('button');x.className='del';x.textContent='×';x.setAttribute('aria-label','Togli dalla lista');
+      x.onclick=function(){
+        ask('Togliere "'+(p?p.name:'questo operaio')+'" dalla lista? I pagamenti già registrati restano come sono.',function(){state.workers.splice(i,1);save();render();},'Sì, togli');
+      };
+      d.appendChild(cb);d.appendChild(c2);d.appendChild(n);d.appendChild(a);d.appendChild(x);
+      rows.appendChild(d);
+    });
+    $('d1').value=state.d1;$('d2').value=state.d2;
+    update();
+  }
+
+  tot.value=state.total;
+  tot.oninput=function(){state.total=tot.value;save();update();};
+  $('d1').oninput=function(){state.d1=this.value;save();update();};
+  $('d2').oninput=function(){state.d2=this.value;save();update();};
+  /* popup "Nuovo operaio" / "Modifica operaio": nome + quota */
+  var aName=$('aName'),aG=$('aG'),editIdx=null;
+  function nameTaken(name,exceptId){
+    var k=lc(name);
+    return state.people.some(function(p){return p.id!==exceptId&&lc(p.name)===k;});
+  }
+  function matchPerson(){
+    var k=lc(aName.value);if(!k)return null;
+    for(var i=0;i<state.people.length;i++)if(lc(state.people[i].name)===k)return state.people[i];
+    return null;
+  }
+  function fillAddList(){
+    var inList={};state.workers.forEach(function(w){if(w.pid!=null)inList[w.pid]=true;});
+    var dl=$('aList');dl.innerHTML='';
+    sortedPeople().forEach(function(p){if(inList[p.id])return;var o=document.createElement('option');o.value=p.name;dl.appendChild(o);});
+  }
+  function syncAdd(){
+    var p=matchPerson(),h=$('aHint');
+    if(editIdx!==null){
+      var me=state.workers[editIdx]?state.workers[editIdx].pid:null;
+      aG.disabled=false;
+      h.textContent=(p&&p.id!==me)?'Questo nome è già presente.':'';
+    }else if(p){
+      aG.value=String(p.g);aG.disabled=true;
+      h.textContent=state.workers.some(function(w){return w.pid===p.id;})?'Questo nome è già nella lista dei pagamenti.':'Nome già presente: uso la sua quota ('+GL[p.g]+').';
+    }else{aG.disabled=false;h.textContent='';}
+    aG.className='af g'+aG.value;
+  }
+  function showAdd(){$('addModal').classList.add('show');setTimeout(function(){aName.focus();},0);}
+  function closeAdd(){$('addModal').classList.remove('show');editIdx=null;}
+  function openAdd(){
+    editIdx=null;$('aTitle').textContent='Nuovo operaio';$('aYes').textContent='Aggiungi';
+    aName.value='';aG.value='3';fillAddList();syncAdd();showAdd();
+  }
+  function openEdit(i){
+    var w=state.workers[i],p=w?pById(w.pid):null;if(!p)return;
+    editIdx=i;$('aTitle').textContent='Modifica operaio';$('aYes').textContent='Salva';
+    aName.value=p.name;aG.value=String(p.g);$('aList').innerHTML='';syncAdd();showAdd();
+  }
+  function doAdd(){
+    var v=aName.value.trim();
+    if(!v){aName.focus();return;}
+    if(editIdx!==null){
+      var w=state.workers[editIdx],p=w?pById(w.pid):null;
+      if(!p){closeAdd();return;}
+      if(nameTaken(v,p.id)){toast('Nome già presente');return;}
+      p.name=v;p.g=parseInt(aG.value,10)||p.g;
+      state.workers.forEach(function(o){if(o.pid===p.id)o.g=p.g;});
+      save();closeAdd();render();renderHist();toast('Salvato');
+      return;
+    }
+    var m=matchPerson();
+    if(m){
+      if(state.workers.some(function(o){return o.pid===m.id;})){toast('Già nella lista');return;}
+      state.workers.push({pid:m.id,g:m.g});
+    }else{
+      m={id:++state.nextPid,name:v,g:parseInt(aG.value,10)||3};
+      state.people.push(m);
+      state.workers.push({pid:m.id,g:m.g});
+    }
+    save();closeAdd();render();toast('Operaio aggiunto');
+  }
+  aName.oninput=syncAdd;
+  aG.onchange=function(){aG.className='af g'+aG.value;};
+  aName.onkeydown=function(ev){if(ev.key==='Enter'){ev.preventDefault();doAdd();}};
+  $('aYes').onclick=doAdd;
+  $('aNo').onclick=closeAdd;
+  $('addModal').onclick=function(ev){if(ev.target===this)closeAdd();};
+  $('add').onclick=openAdd;
+  $('clear').onclick=function(){
+    function go(){state.total='';tot.value='';save();update();tot.focus();}
+    if(state.total)ask('Azzerare l\'importo inserito?',go,'Sì, azzera');else go();
+  };
+
+  function ask(msg,yes,lbl){
+    var m=$('modal');$('mtxt').textContent=msg;$('myes').textContent=lbl||'Sì, elimina';m.classList.add('show');
+    function close(){m.classList.remove('show');$('myes').onclick=null;$('mno').onclick=null;}
+    $('mno').onclick=close;
+    $('myes').onclick=function(){close();yes();};
+  }
+  function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(function(){e.classList.remove('show')},1800);}
+
+  $('copy').onclick=function(){
+    var r=compute();
+    var lines=['Mance: '+eur(r.cents)];
+    state.workers.forEach(function(w,i){if(isPaid(w))lines.push(pName(w.pid)+' ('+label(w)+'): '+eur(r.out[i]));});
+    var fer=feriNames();if(fer.length)lines.push('In ferie: '+fer.join(', '));
+    if(r.rest>0)lines.push('Fondo Cassa: '+eur(r.rest));
+    var txt=lines.join('\n');
+    function fallback(){var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();try{document.execCommand('copy');toast('Copiato');}catch(e){toast('Copia non riuscita');}document.body.removeChild(t);}
+    try{navigator.clipboard.writeText(txt).then(function(){toast('Copiato')},fallback);}catch(e){fallback();}
+  };
+
+  /* ---- storico ---- */
+  function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function fmtDate(s){var p=String(s).split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s;}
+  var dateEl=$('date');dateEl.value=todayStr();
+
+  function itemsFrom(out){
+    var items=[];
+    state.workers.forEach(function(w,i){
+      if(isPaid(w))items.push({pid:w.pid,n:pName(w.pid),t:label(w),c:out[i]});
+    });
+    return items;
+  }
+
+  $('rec').onclick=function(){
+    var r=compute();
+    if(!r.cents){toast('Inserisci un importo');return;}
+    if(!paidCount()){toast('Nessun operaio presente');return;}
+    state.history.unshift({id:Date.now(),d:dateEl.value||todayStr(),cents:r.cents,rest:r.rest,ferie:feriNames(),items:itemsFrom(r.out)});
+    state.history.sort(function(a,b){return a.d<b.d?1:a.d>b.d?-1:b.id-a.id});
+    state.total='';tot.value='';save();update();renderHist();toast('Pagamento registrato');
+  };
+
+  $('fondoBtn').onclick=function(){
+    var bal=fondoBalance();if(!paidCount()||bal<fondoNeed())return;
+    var d=computeDiff(bal);
+    var given=d.out.reduce(function(a,b){return a+b},0);
+    ask('Distribuire '+eur(given)+' dal Fondo Cassa? In cassa restano '+eur(bal-given)+'.',function(){
+      state.history.unshift({id:Date.now(),d:dateEl.value||todayStr(),cents:0,rest:0,fondo:true,fondoUsed:given,ferie:feriNames(),items:itemsFrom(d.out)});
+      state.history.sort(function(a,b){return a.d<b.d?1:a.d>b.d?-1:b.id-a.id});
+      save();update();renderHist();toast('Fondo Cassa distribuito');
+    },'Sì, distribuisci');
+  };
+
+  function row(a,b,gone){
+    var r=document.createElement('div');r.className='hi';
+    var x=document.createElement('span');x.textContent=a;
+    if(gone){var g=document.createElement('span');g.className='gone';g.textContent=' (non più presente)';x.appendChild(g);}
+    var y=document.createElement('span');y.textContent=b;
+    r.appendChild(x);r.appendChild(y);return r;
+  }
+
+  function renderHist(){
+    updateFondo();
+    var h=$('hist'),st=$('sumtot');h.innerHTML='';st.innerHTML='';
+    if(!state.history.length){var m=document.createElement('p');m.className='empty';m.textContent='Nessun pagamento registrato.';h.appendChild(m);return;}
+    /* totale per persona: si somma per persona (non per nome scritto), cosi' un cambio nome non spezza i totali */
+    var tt=Object.create(null),names=Object.create(null),order=[],all=0;
+    state.history.forEach(function(e){
+      all+=e.cents;
+      e.items.forEach(function(it){
+        var key=it.pid!=null?'p'+it.pid:'n'+lc(it.n);
+        if(!(key in tt)){tt[key]=0;order.push(key);names[key]=it.n;}
+        tt[key]+=it.c;
+      });
+    });
+    var t=document.createElement('details');t.className='t';
+    var ts=document.createElement('summary');
+    var l=document.createElement('span');l.textContent='Totale per operaio';
+    var b=document.createElement('b');b.textContent=eur(all);
+    ts.appendChild(l);ts.appendChild(b);t.appendChild(ts);
+    order.forEach(function(key){
+      var pid=key.charAt(0)==='p'?parseInt(key.slice(1),10):null;
+      var p=pid!=null?pById(pid):null;
+      var gone=!p;
+      t.appendChild(row(p?p.name:names[key],eur(tt[key]),gone));
+    });
+    var fc=fondoBalance();
+    if(fc>0){var fr=row('Fondo Cassa',eur(fc));fr.className='hi fc';t.appendChild(fr);}
+    var sp=document.createElement('div');sp.style.height='8px';t.appendChild(sp);
+    st.appendChild(t);
+    state.history.forEach(function(e,i){
+      var d=document.createElement('details');d.className='h';
+      var s=document.createElement('summary');
+      var a=document.createElement('span');a.textContent=fmtDate(e.d)+(e.fondo?' · Dal Fondo Cassa':'');
+      var c=document.createElement('b');c.textContent=eur(e.fondo?e.fondoUsed:e.cents);
+      s.appendChild(a);s.appendChild(c);d.appendChild(s);
+      e.items.forEach(function(it){d.appendChild(row(it.n+' ('+(it.t!=null?it.t:pf(it.p)+'%')+')',eur(it.c)));});
+      if(e.rest>0){var fcr=row('Fondo Cassa',eur(e.rest));fcr.className='hi fc';d.appendChild(fcr);}
+      if(e.ferie&&e.ferie.length){var fr2=row('In ferie',e.ferie.join(', '));fr2.style.color='var(--muted)';d.appendChild(fr2);}
+      var x=document.createElement('button');x.className='hdel';x.textContent='Elimina';
+      x.onclick=function(){ask('Eliminare il pagamento del '+fmtDate(e.d)+' ('+eur(e.fondo?e.fondoUsed:e.cents)+')?',function(){state.history.splice(i,1);save();renderHist();});};
+      d.appendChild(x);h.appendChild(d);
+    });
+  }
+
+  /* ---- backup / ripristino ---- */
+  $('bkp').onclick=function(){
+    var data=JSON.stringify(state);
+    var d=new Date();
+    var name='mance-backup-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+    var blob=new Blob([data],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);document.body.removeChild(a);},1000);
+    toast('Backup salvato');
+  };
+  $('rst').onclick=function(){$('rstFile').value='';$('rstFile').click();};
+  $('rstFile').onchange=function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var r=new FileReader();
+    r.onload=function(){
+      var obj;
+      try{obj=JSON.parse(r.result);}catch(e){obj=null;}
+      if(!obj||!Array.isArray(obj.people)||!Array.isArray(obj.workers)||!Array.isArray(obj.history)){toast('File non valido');return;}
+      ask('Ripristinare il backup? I dati attuali verranno sostituiti.',function(){
+        try{localStorage.setItem(KEY,JSON.stringify(obj));}catch(e){toast('Errore');return;}
+        location.reload();
+      },'Sì, ripristina');
+    };
+    r.readAsText(f);
+  };
+
+  if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){navigator.serviceWorker.register('sw.js').catch(function(){});}
+
+  save();
+  render();
+  renderHist();
+})();
+</script>
+</body>
+</html>
