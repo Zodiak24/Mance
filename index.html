@@ -148,6 +148,9 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
 .sy.g1{background:var(--g1)}.sy.g2{background:var(--g2)}.sy.g3{background:var(--g3)}
 .lgd{display:flex;gap:14px;padding:6px 2px 10px;font-size:13px;color:var(--muted)}
 .hdel{color:#fca5a5!important;background:rgba(220,38,38,.18)!important;border:1px solid rgba(248,113,113,.6)!important;font-weight:700}
+.hact{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
+.hact .hdel{margin:0}
+.hx{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff}
 #myes.danger{background:#dc2626!important;border-color:#ef4444!important;color:#fff!important;box-shadow:0 6px 18px rgba(220,38,38,.35)}
 </style>
 </head>
@@ -607,7 +610,11 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
       if(e.ferie&&e.ferie.length){var fr2=row('In ferie',e.ferie.join(', '));fr2.style.color='var(--muted)';d.appendChild(fr2);}
       var x=document.createElement('button');x.className='hdel';x.textContent='Elimina';
       x.onclick=function(){ask('Eliminare il pagamento del '+fmtDate(e.d)+' ('+eur(e.fondo?e.fondoUsed:e.cents)+')?',function(){state.history.splice(i,1);save();renderHist();},undefined,true);};
-      d.appendChild(x);h.appendChild(d);
+      var act=document.createElement('div');act.className='hact';act.appendChild(x);
+      var cx=document.createElement('button');cx.type='button';cx.className='hx';cx.title='Chiudi';cx.setAttribute('aria-label','Chiudi');
+      cx.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      cx.onclick=function(){d.open=false;d.scrollIntoView({block:'nearest'});};
+      act.appendChild(cx);d.appendChild(act);h.appendChild(d);
     });
   }
 
