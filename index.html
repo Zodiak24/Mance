@@ -138,6 +138,7 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
 .w select{text-align:center}.w .nm{padding-left:14px}
 .actions.icons .ib{flex:1;height:52px;padding:0;display:grid;place-items:center}
 .hdel{border-radius:999px}
+#myes.danger{background:#dc2626!important;border-color:#ef4444!important;color:#fff!important;box-shadow:0 6px 18px rgba(220,38,38,.35)}
 </style>
 </head>
 <body>
@@ -383,7 +384,7 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
       var a=document.createElement('div');a.className='amt';
       var x=document.createElement('button');x.className='del';x.textContent='×';x.setAttribute('aria-label','Togli dalla lista');
       x.onclick=function(){
-        ask('Togliere "'+(p?p.name:'questo operaio')+'" dalla lista? I pagamenti già registrati restano come sono.',function(){state.workers.splice(i,1);save();render();},'Sì, togli');
+        ask('Togliere "'+(p?p.name:'questo operaio')+'" dalla lista? I pagamenti già registrati restano come sono.',function(){state.workers.splice(i,1);save();render();},'Sì, elimina',true);
       };
       d.appendChild(cb);d.appendChild(c2);d.appendChild(n);d.appendChild(a);d.appendChild(x);
       rows.appendChild(d);
@@ -467,11 +468,11 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
   $('add').onclick=openAdd;
   $('clear').onclick=function(){
     function go(){state.total='';tot.value='';save();update();tot.focus();}
-    if(state.total)ask('Azzerare l\'importo inserito?',go,'Sì, azzera');else go();
+    ask('Azzerare l\'importo inserito?',go,'Sì, azzera');
   };
 
-  function ask(msg,yes,lbl){
-    var m=$('modal');$('mtxt').textContent=msg;$('myes').textContent=lbl||'Sì, elimina';m.classList.add('show');
+  function ask(msg,yes,lbl,danger){
+    var m=$('modal');$('mtxt').textContent=msg;$('myes').textContent=lbl||'Sì, elimina';$('myes').classList.toggle('danger',!!danger);m.classList.add('show');
     function close(){m.classList.remove('show');$('myes').onclick=null;$('mno').onclick=null;}
     $('mno').onclick=close;
     $('myes').onclick=function(){close();yes();};
@@ -569,7 +570,7 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
       if(e.rest>0){var fcr=row('Fondo Cassa',eur(e.rest));fcr.className='hi fc';d.appendChild(fcr);}
       if(e.ferie&&e.ferie.length){var fr2=row('In ferie',e.ferie.join(', '));fr2.style.color='var(--muted)';d.appendChild(fr2);}
       var x=document.createElement('button');x.className='hdel';x.textContent='Elimina';
-      x.onclick=function(){ask('Eliminare il pagamento del '+fmtDate(e.d)+' ('+eur(e.fondo?e.fondoUsed:e.cents)+')?',function(){state.history.splice(i,1);save();renderHist();});};
+      x.onclick=function(){ask('Eliminare il pagamento del '+fmtDate(e.d)+' ('+eur(e.fondo?e.fondoUsed:e.cents)+')?',function(){state.history.splice(i,1);save();renderHist();},undefined,true);};
       d.appendChild(x);h.appendChild(d);
     });
   }
@@ -587,7 +588,7 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
     setTimeout(function(){URL.revokeObjectURL(a.href);document.body.removeChild(a);},1000);
     toast('Backup salvato');
   };
-  $('rst').onclick=function(){$('rstFile').value='';$('rstFile').click();};
+  $('rst').onclick=function(){ask('Ripristinare un backup? I dati attuali verranno sostituiti.',function(){$('rstFile').value='';$('rstFile').click();},'Sì, scegli il file');};
   $('rstFile').onchange=function(){
     var f=this.files&&this.files[0];if(!f)return;
     var r=new FileReader();
@@ -595,10 +596,8 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
       var obj;
       try{obj=JSON.parse(r.result);}catch(e){obj=null;}
       if(!obj||!Array.isArray(obj.people)||!Array.isArray(obj.workers)||!Array.isArray(obj.history)){toast('File non valido');return;}
-      ask('Ripristinare il backup? I dati attuali verranno sostituiti.',function(){
-        try{localStorage.setItem(KEY,JSON.stringify(obj));}catch(e){toast('Errore');return;}
-        location.reload();
-      },'Sì, ripristina');
+      try{localStorage.setItem(KEY,JSON.stringify(obj));}catch(e){toast('Errore');return;}
+      location.reload();
     };
     r.readAsText(f);
   };
