@@ -145,11 +145,11 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
   <div id="viewMain">
     <div class="total">
       <label for="tot">Mance raccolte</label>
-      <div class="row"><span class="eur">€</span><input id="tot" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+      <div class="row"><span class="eur">€</span><input id="tot" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="0"></div>
     </div>
 
     <div class="cfg locked" id="cfg">
-      <button class="lk" id="cfgLock" aria-label="Sbloccato con 2 tocchi" type="button"></button>
+      <button class="lk" id="cfgLock" tabindex="-1" aria-label="Sbloccato con 2 tocchi" type="button"></button>
       <span class="lki" id="cfgIcon"></span>
       <label><b style="font-weight:400">Medio prende meno dell'Alto di</b> <span><input id="d1" inputmode="decimal"> €</span></label>
       <label><b style="font-weight:400">Basso prende meno dell'Alto di</b> <span><input id="d2" inputmode="decimal"> €</span></label>
@@ -574,6 +574,8 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
     });
   }
 
+  $('tot').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();this.blur();}});
+
   /* ---- backup / ripristino ---- */
   $('bkp').onclick=function(){
     var data=JSON.stringify(state);
@@ -607,7 +609,7 @@ body{background:radial-gradient(circle at 20% 0,#2a1f6b 0,#0b1020 45%),#0b1020!i
     var cfg=$('cfg'),lk=$('cfgLock'),ic=$('cfgIcon'),taps=[];
     var LOCK='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
     var OPEN='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
-    function setLocked(v){cfg.classList.toggle('locked',v);lk.hidden=!v;ic.innerHTML=v?LOCK:OPEN;if(v)taps=[];}
+    function setLocked(v){cfg.classList.toggle('locked',v);lk.hidden=!v;ic.innerHTML=v?LOCK:OPEN;$('d1').disabled=v;$('d2').disabled=v;if(v)taps=[];}
     lk.onclick=function(){
       var t=Date.now();taps=taps.filter(function(x){return t-x<900;});taps.push(t);
       if(taps.length>=2){setLocked(false);$('d1').focus();toast('Sbloccato');}
